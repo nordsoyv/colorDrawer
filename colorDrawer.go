@@ -15,7 +15,7 @@ func main() {
 
 	imageSize := (configuration.ColorCubeSide + configuration.ColorCubeSide + configuration.ColorCubeSide) / 2
 	fmt.Println("imageSize : ", imageSize)
-	img := imageutil.CreateRandomImage(int(imageSize))
+	img := imageutil.CreateRandomImage(imageSize)
 	imageutil.WriteImageToDisk(configuration.OutputFilename, img)
 
 }
