@@ -20,5 +20,17 @@ func New(size int) Surface {
 	return Surface{topLevel, size}
 }
 
+func (s *Surface) GetColor(x, y int) color.RGBA {
+	if x >= s.Size || y >= s.Size {
+		panic("GetColor :: index out of range")
+	}
+	return s.pixels[x][y].Color
+}
 
+func (s *Surface) SetColor(x, y int, r, g, b uint8) {
+	if x >= s.Size || y >= s.Size {
+		panic("SetColor :: index out of range")
+	}
+	s.pixels[x][y].Color = color.RGBA{r,g,b,255}
 
+}
