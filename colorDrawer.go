@@ -3,17 +3,20 @@ package main
 import (
 	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/imageutil"
-	//	"github.com/nordsoyv/colorDrawer/colorCube"
+//	"github.com/nordsoyv/colorDrawer/colorCube"
 	"fmt"
+	"image"
 )
+
+
 
 func main() {
 
 	configuration := config.Read("config.json")
 
-	//	cube := colorCube.New(configuration.ColorCubeSide)
+//	cube := colorCube.New(uint8(configuration.ColorCubeBitSize))
 
-	imageSize := (configuration.ColorCubeBitSize + configuration.ColorCubeBitSize + configuration.ColorCubeBitSize) / 2
+	imageSize := 1 << uint( ( (configuration.ColorCubeBitSize + configuration.ColorCubeBitSize + configuration.ColorCubeBitSize) / 2))
 	fmt.Println("imageSize : ", imageSize)
 	img := imageutil.CreateRandomImage(imageSize)
 	imageutil.WriteImageToDisk(configuration.OutputFilename, img)
