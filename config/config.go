@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	ColorCubeSide int
+	ColorCubeBitSize int
 	OutputFilename string
 }
 
