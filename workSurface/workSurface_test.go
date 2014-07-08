@@ -18,10 +18,10 @@ func TestNew(t *testing.T){
 		t.Error("Wrong size")
 	}
 	if w.pixels[0][0].Used == true{
-		t.Error("FirstColor is used size")
+		t.Error("FirstColor is used")
 	}
 	if w.pixels[7][7].Used == true{
-		t.Error("LastColor is used size")
+		t.Error("LastColor is used")
 	}
 }
 
@@ -32,6 +32,16 @@ func TestSetGetColor(t *testing.T){
 	if color.R != 100 && color.G != 100 &&  color.B != 100 {
 		t.Error("Wrong color : ", color)
 	}
-
 }
+
+
+
+func TestSetUsed(t *testing.T){
+	w := New(8)
+	w.SetUsed(0,0)
+	if !w.IsUsed(0,0) {
+		t.Error("Not Used when should be ")
+	}
+}
+
 

@@ -34,3 +34,18 @@ func (s *Surface) SetColor(x, y int, r, g, b uint8) {
 	s.pixels[x][y].Color = color.RGBA{r,g,b,255}
 
 }
+
+func (s *Surface) SetUsed(x, y int) {
+	if x >= s.Size || y >= s.Size {
+		panic("SetUsed :: index out of range")
+	}
+	s.pixels[x][y].Used = true
+}
+
+func (s *Surface) IsUsed(x, y int) bool {
+
+	if x >= s.Size || y >= s.Size {
+		panic("IsUsed :: index out of range")
+	}
+	return s.pixels[x][y].Used
+}
