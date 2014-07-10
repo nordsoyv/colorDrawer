@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"github.com/nordsoyv/colorDrawer/workSurface"
 	"github.com/nordsoyv/colorDrawer/colorCube"
+
 )
 
 type iteratorStrategy struct {

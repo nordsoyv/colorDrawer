@@ -38,22 +38,14 @@ func (s *Surface) SetColorRGB(x, y int, r, g, b uint8) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
-	var c color.RGBA
-	c.R = r
-	c.G = g
-	c.B = b
-	c.A = 255
-	s.pixels[x][y].Color = c
-
+	s.pixels[x][y].Color = color.RGBA{r,g,b,255}
 }
 
 func (s *Surface) SetColor(x, y int, c color.RGBA) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
-
 	s.pixels[x][y].Color = color.RGBA{c.R, c.G, c.B, 255}
-
 }
 
 func (s *Surface) SetUsed(x, y int) {
@@ -64,7 +56,6 @@ func (s *Surface) SetUsed(x, y int) {
 }
 
 func (s *Surface) IsUsed(x, y int) bool {
-
 	if x >= s.Size || y >= s.Size {
 		panic("IsUsed :: index out of range")
 	}
@@ -78,10 +69,9 @@ func (s *Surface) ToPng(fileName string) {
 	defer outfile.Close()
 
 	writer := bufio.NewWriter(outfile)
-	img := s.toImage()
-	err = png.Encode(writer, img)
-	writer.Flush()
+	err = png.Encode(writer, s.toImage())
 	check(err)
+	writer.Flush()
 }
 
 func (s *Surface) toImage() *image.RGBA {
