@@ -2,7 +2,6 @@ package workSurface
 
 import (
 	"image/color"
-	"math/rand"
 	"os"
 	"bufio"
 	"image/png"
@@ -35,11 +34,25 @@ func (s *Surface) GetColor(x, y int) color.RGBA {
 	return s.pixels[x][y].Color
 }
 
-func (s *Surface) SetColor(x, y int, r, g, b uint8) {
+func (s *Surface) SetColorRGB(x, y int, r, g, b uint8) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
-	s.pixels[x][y].Color = color.RGBA{r, g, b, 255}
+	var c color.RGBA
+	c.R = r
+	c.G = g
+	c.B = b
+	c.A = 255
+	s.pixels[x][y].Color = c
+
+}
+
+func (s *Surface) SetColor(x, y int, c color.RGBA) {
+	if x >= s.Size || y >= s.Size {
+		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
+	}
+
+	s.pixels[x][y].Color = color.RGBA{c.R, c.G, c.B, 255}
 
 }
 
@@ -58,32 +71,17 @@ func (s *Surface) IsUsed(x, y int) bool {
 	return s.pixels[x][y].Used
 }
 
-func (s *Surface) FillWithRandomColors() {
-	for x := 0; x < s.Size; x++ {
-		for y := 0 ; y < s.Size; y++ {
-			R := uint8(rand.Intn(256))
-			G := uint8(rand.Intn(256))
-			B := uint8(rand.Intn(256))
-			s.SetColor(x, y, R, G, B)
-			s.SetUsed(x, y)
-		}
-	}
-}
-
-func randomColor() (color.RGBA) {
-	R := uint8(rand.Intn(256))
-	G := uint8(rand.Intn(256))
-	B := uint8(rand.Intn(256))
-	return color.RGBA{R, G, B, 255}
-}
-
 func (s *Surface) ToPng(fileName string) {
+	fmt.Println("Writing to file : ", fileName)
 	outfile , err := os.Create(fileName)
 	check(err)
 	defer outfile.Close()
 
 	writer := bufio.NewWriter(outfile)
-	png.Encode(writer, s.toImage())
+	img := s.toImage()
+	err = png.Encode(writer, img)
+	writer.Flush()
+	check(err)
 }
 
 func (s *Surface) toImage() *image.RGBA {

@@ -27,7 +27,7 @@ func TestNew(t *testing.T){
 
 func TestSetGetColor(t *testing.T){
 	w := New(8)
-	w.SetColor(0,0,uint8(100),uint8(100),uint8(100))
+	w.SetColorRGB(0,0,uint8(100),uint8(100),uint8(100))
 	color := w.GetColor(0,0)
 	if color.R != 100 && color.G != 100 &&  color.B != 100 {
 		t.Error("Wrong color : ", color)
