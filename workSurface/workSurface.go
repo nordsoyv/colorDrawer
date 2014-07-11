@@ -67,11 +67,10 @@ func (s *Surface) ToPng(fileName string) {
 	outfile , err := os.Create(fileName)
 	check(err)
 	defer outfile.Close()
-
 	writer := bufio.NewWriter(outfile)
+	defer writer.Flush()
 	err = png.Encode(writer, s.toImage())
 	check(err)
-	writer.Flush()
 }
 
 func (s *Surface) toImage() *image.RGBA {
