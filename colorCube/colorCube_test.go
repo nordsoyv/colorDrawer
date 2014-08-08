@@ -1,10 +1,13 @@
 package colorCube
 
-import "testing"
+import (
+	"image/color"
+	"testing"
+)
 
 func TestNewSetsSize(t *testing.T) {
 	colorCube := New(uint8(4))
-	if (colorCube.SideSize != 16 ) {
+	if colorCube.SideSize != 16 {
 		t.Fail()
 	}
 }
@@ -45,20 +48,35 @@ func TestCubeShouldNotBeUsedOnCreation(t *testing.T) {
 
 func TestCanGetColorForCoord(t *testing.T) {
 	colorCube := New(uint8(4))
-	color := colorCube.GetColor(0, 0, 0) //black
-	if color.R != 0 && color.B != 0 && color.G != 0 {
-		t.Error("Not black color : ", color)
+	col := colorCube.GetColor(0, 0, 0) //black
+	if col.R != 0 && col.B != 0 && col.G != 0 {
+		t.Error("Not black color : ", col)
 	}
-	color = colorCube.GetColor(15, 15, 15) //white
-	if color.R != 255 && color.B != 255 && color.G != 255 {
-		t.Error("Not white color : ", color)
+	col = colorCube.GetColor(15, 15, 15) //white
+	if col.R != 255 && col.B != 255 && col.G != 255 {
+		t.Error("Not white color : ", col)
 	}
-	color = colorCube.GetColor(15, 0, 0) //just red
-	if color.R != 255 && color.B == 0 && color.G == 0 {
-		t.Error("Not red color : ", color)
+	col = colorCube.GetColor(15, 0, 0) //just red
+	if col.R != 255 && col.B == 0 && col.G == 0 {
+		t.Error("Not red color : ", col)
 	}
-	color = colorCube.GetColor(7, 7, 7) //grey
-	if color.R != 119 && color.B != 119 && color.G != 119 {
-		t.Error("Not grey color : ", color)
+	col = colorCube.GetColor(7, 7, 7) //grey
+	if col.R != 119 && col.B != 119 && col.G != 119 {
+		t.Error("Not grey color : ", col)
+	}
+}
+
+func TestGetIndexForColor(t *testing.T) {
+	colorCube := New(uint8(4))
+
+	x, y, z := colorCube.GetIndexForColor(color.RGBA{255, 255, 255, 255})
+	if x != colorCube.SideSize-1 {
+		t.Error("X is not 16 but ", x)
+	}
+	if y != colorCube.SideSize-1 {
+		t.Error("Y is not 16 but ", y)
+	}
+	if z != colorCube.SideSize-1 {
+		t.Error("X is not 16 but ", z)
 	}
 }
