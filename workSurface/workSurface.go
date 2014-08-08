@@ -38,7 +38,7 @@ func (s *Surface) SetColorRGB(x, y int, r, g, b uint8) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
-	s.pixels[x][y].Color = color.RGBA{r,g,b,255}
+	s.pixels[x][y].Color = color.RGBA{r, g, b, 255}
 }
 
 func (s *Surface) SetColor(x, y int, c color.RGBA) {
@@ -46,6 +46,7 @@ func (s *Surface) SetColor(x, y int, c color.RGBA) {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
 	s.pixels[x][y].Color = color.RGBA{c.R, c.G, c.B, 255}
+	s.SetUsed(x, y)
 }
 
 func (s *Surface) SetUsed(x, y int) {
@@ -54,6 +55,14 @@ func (s *Surface) SetUsed(x, y int) {
 	}
 	s.pixels[x][y].Used = true
 }
+
+func (s *Surface) SetNotUsed(x, y int) {
+	if x >= s.Size || y >= s.Size {
+		panic("SetNotUsed :: index out of range")
+	}
+	s.pixels[x][y].Used = false
+}
+
 
 func (s *Surface) IsUsed(x, y int) bool {
 	if x >= s.Size || y >= s.Size {
