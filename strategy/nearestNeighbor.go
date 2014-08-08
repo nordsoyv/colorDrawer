@@ -58,22 +58,6 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 
 }
 
-func findUnusedColorsInTop(startX, startY, startZ, distFromCenter int, cube *colorCube.ColorCube) (foundIt bool, foundX, foundY , foundZ int) {
-	minX := startX - distFromCenter
-	minZ := startZ - distFromCenter
-	maxX := startX + distFromCenter
-	maxZ := startZ + distFromCenter
-	yPos := startY + distFromCenter
-	for x := minX ; x <= maxX; x++ {
-		for z := minZ; z <= maxZ; z++ {
-			if !cube.IsUsed(x, yPos, z) {
-				return true, x, yPos, z
-			}
-		}
-	}
-	return false, 0, 0, 0
-}
-
 
 
 
