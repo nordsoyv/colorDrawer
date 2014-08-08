@@ -3,11 +3,11 @@ package strategy
 import (
 	"testing"
 	"github.com/nordsoyv/colorDrawer/config"
-	 _ "container/list"
+	_ "container/list"
+	"github.com/nordsoyv/colorDrawer/colorCube"
 )
 
-
-func TestNew(t *testing.T){
+func TestNew(t *testing.T) {
 	c := config.Read("config_test.json")
 	n := NearestNeighbor(c)
 	if n == nil {
@@ -15,12 +15,17 @@ func TestNew(t *testing.T){
 	}
 }
 
-func TestFindNeighborPixelsInCenter(t *testing.T ){
-	p := pixel{3,3}
+func setup() nearestNeighborStrategy {
 	c := config.Read("config_test.json")
 	colorStrat := NearestNeighbor(c)
-	n,_ := colorStrat.(nearestNeighborStrategy)
-	used,unUsed := n.findNeighborPixels(p)
+	n, _ := colorStrat.(nearestNeighborStrategy)
+	return n
+}
+
+func TestFindNeighborPixelsInCenter(t *testing.T) {
+	p := pixel{3, 3}
+	n := setup()
+	used, unUsed := n.findNeighborPixels(p)
 	if used == nil {
 		t.Error("findNeighborPixels used failed")
 	}
@@ -35,55 +40,103 @@ func TestFindNeighborPixelsInCenter(t *testing.T ){
 	}
 }
 
-func TestFindNeighborPixelsInCorners(t *testing.T ){
-	t.SkipNow()
-	c := config.Read("config_test.json")
-	colorStrat := NearestNeighbor(c)
-	n,_ := colorStrat.(nearestNeighborStrategy)
-	p := pixel{0,0}
-	_,unUsed := n.findNeighborPixels(p)
+func TestFindNeighborPixelsInCorners(t *testing.T) {
+	n := setup()
+	p := pixel{0, 0}
+	_, unUsed := n.findNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = pixel{0,15}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{0, 63}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = pixel{15,0}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{63, 0}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = pixel{15,15}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{63, 63}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
 }
 
-func TestFindNeighborPixeOnEdge(t *testing.T ){
-	c := config.Read("config_test.json")
-	colorStrat := NearestNeighbor(c)
-	n,_ := colorStrat.(nearestNeighborStrategy)
-	p := pixel{0,5}
-	_,unUsed := n.findNeighborPixels(p)
+func TestFindNeighborPixeOnEdge(t *testing.T) {
+	n := setup()
+	p := pixel{0, 5}
+	_, unUsed := n.findNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 0 5")
 	}
-	p = pixel{5,0}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{5, 0}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 5 0")
 	}
-	p = pixel{63,5}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{63, 5}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 15 5")
 	}
-	p = pixel{5,63}
-	_,unUsed = n.findNeighborPixels(p)
+	p = pixel{5, 63}
+	_, unUsed = n.findNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 5 15", unUsed.Len())
 	}
 }
+
+
+func TestFindUnusedColorsInTopAllUsed(t *testing.T) {
+	cube := colorCube.New(uint8(5))
+	setCubeAsUsed(cube)
+	foundIt, _, _, _ := findUnusedColorsInTop(5, 5, 5, 1, cube)
+	if foundIt {
+		t.Error("Should not find an unused color")
+	}
+}
+
+func TestFindUnusedColorsInTopOneUnused(t *testing.T) {
+	cube := colorCube.New(uint8(5))
+	setCubeAsUsed(cube)
+	cube.SetUnUsed(5, 6, 5)
+	foundIt, _, _, _ := findUnusedColorsInTop(5, 5, 5, 1, cube)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5,6,5)
+	cube.SetUnUsed(5, 7, 5)
+	foundIt, _, _, _ = findUnusedColorsInTop(5, 5, 5, 1, cube)
+	if foundIt {
+		t.Error("Should not find an unused color")
+	}
+	foundIt, _, _, _ = findUnusedColorsInTop(5, 5, 5, 2, cube)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5,7,5)
+	cube.SetUnUsed(4,6,4)
+	foundIt, _, _, _ = findUnusedColorsInTop(5, 5, 5, 1, cube)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(4,6,4)
+	cube.SetUnUsed(1,6,1)
+	foundIt, _, _, _ = findUnusedColorsInTop(0, 5, 0, 1, cube)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+}
+
+func setCubeAsUsed(cube *colorCube.ColorCube) {
+	for x := 0; x < cube.SideSize; x++ {
+		for y := 0; y < cube.SideSize; y++ {
+			for z := 0; z < cube.SideSize; z++ {
+				cube.Cube[x][y][z] = true;
+			}
+		}
+	}
+}
+

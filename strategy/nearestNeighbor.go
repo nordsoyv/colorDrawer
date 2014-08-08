@@ -28,19 +28,69 @@ type nearestNeighborStrategy struct {
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
 	n.addPixelToDraw(pixel{0, 0})
+
+	n.surface.SetColor(0, 0, color.RGBA{uint8(0), uint8(0), uint8(0), 255})
 	for n.pixelBuffer.Len() > 0 {
 		nextPixel := n.getNextPixel()
-		_, unUsedPixels := n.findNeighborPixels(nextPixel)
+		usedPixels, unUsedPixels := n.findNeighborPixels(nextPixel)
 		n.addPixelsToDraw(unUsedPixels)
 
 		//get average color for used neighbor pixels
+		avgColor := n.getAverageColor(usedPixels)
 		//find index for this color in colorcube
+		x, y, z := cube.GetIndexForColor(avgColor)
+		//if color at that index is not used
+		if !cube.IsUsed(x, y, z) {
+			cube.SetUsed(x, y, z)
+			n.surface.SetColor(nextPixel.x, nextPixel.y, cube.GetColor(x, y, z))
+			continue
+		}else {
+			//  find nearest free color in cube
+			//	set as used, and color surface with it. continue loop
+		}
+
 
 
 	}
 
 
 	return n.surface;
+
+}
+
+func findUnusedColorsInTop(startX, startY, startZ, distFromCenter int, cube *colorCube.ColorCube) (foundIt bool, foundX, foundY , foundZ int) {
+	minX := startX - distFromCenter
+	minZ := startZ - distFromCenter
+	maxX := startX + distFromCenter
+	maxZ := startZ + distFromCenter
+	yPos := startY + distFromCenter
+	for x := minX ; x <= maxX; x++ {
+		for z := minZ; z <= maxZ; z++ {
+			if !cube.IsUsed(x, yPos, z) {
+				return true, x, yPos, z
+			}
+		}
+	}
+	return false, 0, 0, 0
+}
+
+
+
+
+func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
+	var totR, totG, totB int
+	totR = 0
+	totG = 0
+	totB = 0
+	for e := l.Front(); e != nil; e = e.Next() {
+		p := e.Value.(pixel)
+		col := n.surface.GetColor(p.x, p.y)
+		totR += int(col.R)
+		totG += int(col.G)
+		totB += int(col.B)
+	}
+	numElem := l.Len()
+	return color.RGBA { uint8(totR / numElem), uint8(totG / numElem), uint8(totB / numElem), 255  }
 
 }
 
@@ -54,8 +104,12 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) {
 
 
 func (n nearestNeighborStrategy) getNextPixel() (pixel) {
-	elem := n.pixelBuffer.Front()
-	n.pixelBuffer.Remove(elem)
+	return getFrontPixelInList(n.pixelBuffer)
+}
+
+func getFrontPixelInList(l *list.List) pixel {
+	elem := l.Front()
+	l.Remove(elem)
 	p, ok := elem.Value.(pixel)
 	if !ok {
 		panic("Not a pixel in list!")
