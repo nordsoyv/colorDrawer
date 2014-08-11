@@ -7,7 +7,10 @@ func findUnusedColorInCubeN(startX, startY, startZ,n int, cube *colorCube.ColorC
 	if foundIt {
 		return
 	}
-
+	foundIt, foundX, foundY, foundZ = findUnusedColorsInBottom(startX,startY,startZ,n,cube)
+	if foundIt {
+		return
+	}
 	return
 
 }
