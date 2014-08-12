@@ -43,7 +43,7 @@ func TestSetUsed(t *testing.T) {
 }
 
 func TestFindNeighborPixelsInCenter(t *testing.T) {
-	p := Coord{3, 3}
+	p := Coord2D{3, 3}
 	surface := New(64)
 	used, unUsed := surface.FindNeighborPixels(p)
 	if used == nil {
@@ -62,22 +62,22 @@ func TestFindNeighborPixelsInCenter(t *testing.T) {
 
 func TestFindNeighborPixelsInCorners(t *testing.T) {
 	surface := New(64)
-	p := Coord{0, 0}
+	p := Coord2D{0, 0}
 	_, unUsed := surface.FindNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = Coord{0, 63}
+	p = Coord2D{0, 63}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = Coord{63, 0}
+	p = Coord2D{63, 0}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
 	}
-	p = Coord{63, 63}
+	p = Coord2D{63, 63}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 3 {
 		t.Error("findNeighborPixels not all pixels in unused list")
@@ -86,22 +86,22 @@ func TestFindNeighborPixelsInCorners(t *testing.T) {
 
 func TestFindNeighborPixelsOnEdge(t *testing.T) {
 	surface := New(64)
-	p := Coord{0, 5}
+	p := Coord2D{0, 5}
 	_, unUsed := surface.FindNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 0 5")
 	}
-	p = Coord{5, 0}
+	p = Coord2D{5, 0}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 5 0")
 	}
-	p = Coord{63, 5}
+	p = Coord2D{63, 5}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 15 5")
 	}
-	p = Coord{5, 63}
+	p = Coord2D{5, 63}
 	_, unUsed = surface.FindNeighborPixels(p)
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 5 15", unUsed.Len())

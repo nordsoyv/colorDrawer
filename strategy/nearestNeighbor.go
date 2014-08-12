@@ -26,7 +26,7 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
-	n.addPixelToDraw(workSurface.Coord{0, 0})
+	n.addPixelToDraw(workSurface.Coord2D{0, 0})
 
 	n.surface.SetColor(0, 0, color.RGBA{uint8(0), uint8(0), uint8(0), 255})
 	for n.pixelBuffer.Len() > 0 {
@@ -60,7 +60,7 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 	totG = 0
 	totB = 0
 	for e := l.Front(); e != nil; e = e.Next() {
-		p := e.Value.(workSurface.Coord)
+		p := e.Value.(workSurface.Coord2D)
 		col := n.surface.GetColor(p.X, p.Y)
 		totR += int(col.R)
 		totG += int(col.G)
@@ -71,7 +71,7 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 
 }
 
-func (n nearestNeighborStrategy) addPixelToDraw(p workSurface.Coord) {
+func (n nearestNeighborStrategy) addPixelToDraw(p workSurface.Coord2D) {
 	n.pixelBuffer.PushBack(p)
 }
 
@@ -79,14 +79,14 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) {
 	n.pixelBuffer.PushBackList(l)
 }
 
-func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord {
+func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
 	return getFrontPixelInList(n.pixelBuffer)
 }
 
-func getFrontPixelInList(l *list.List) workSurface.Coord {
+func getFrontPixelInList(l *list.List) workSurface.Coord2D {
 	elem := l.Front()
 	l.Remove(elem)
-	p, ok := elem.Value.(workSurface.Coord)
+	p, ok := elem.Value.(workSurface.Coord2D)
 	if !ok {
 		panic("Not a pixel in list!")
 	}
