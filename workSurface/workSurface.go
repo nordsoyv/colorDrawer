@@ -15,7 +15,7 @@ type pixel struct {
 	Used  bool
 }
 
-type Coord struct {
+type Coord2D struct {
 	X, Y int
 }
 
@@ -96,7 +96,7 @@ func (s *Surface) toImage() *image.RGBA {
 	return img
 }
 
-func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed *list.List) {
+func (s *Surface) FindNeighborPixels(p Coord2D) (used, unUsed *list.List) {
 	unUsed = list.New()
 	used = list.New()
 	if p.X > 0 {
@@ -126,7 +126,7 @@ func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed *list.List) {
 	return used, unUsed
 }
 
-func (s *Surface) filterPixel(p Coord, used, unUsed *list.List) {
+func (s *Surface) filterPixel(p Coord2D, used, unUsed *list.List) {
 	if s.IsUsed(p.X, p.Y) {
 		used.PushBack(p)
 	} else {
@@ -145,36 +145,36 @@ y
   x  -----------> +++
 
 */
-func leftPixel(p Coord) Coord {
-	return Coord{p.X - 1, p.Y}
+func leftPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X - 1, p.Y}
 }
 
-func rightPixel(p Coord) Coord {
-	return Coord{p.X + 1, p.Y}
+func rightPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X + 1, p.Y}
 }
 
-func upPixel(p Coord) Coord {
-	return Coord{p.X, p.Y + 1}
+func upPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X, p.Y + 1}
 }
 
-func downPixel(p Coord) Coord {
-	return Coord{p.X, p.Y - 1}
+func downPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X, p.Y - 1}
 }
 
-func downLeftPixel(p Coord) Coord {
-	return Coord{p.X - 1, p.Y - 1}
+func downLeftPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X - 1, p.Y - 1}
 }
 
-func downRightPixel(p Coord) Coord {
-	return Coord{p.X + 1, p.Y - 1}
+func downRightPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X + 1, p.Y - 1}
 }
 
-func upLeftPixel(p Coord) Coord {
-	return Coord{p.X - 1, p.Y + 1}
+func upLeftPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X - 1, p.Y + 1}
 }
 
-func upRightPixel(p Coord) Coord {
-	return Coord{p.X + 1, p.Y + 1}
+func upRightPixel(p Coord2D) Coord2D {
+	return Coord2D{p.X + 1, p.Y + 1}
 }
 
 func check(e error) {
