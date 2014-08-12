@@ -7,11 +7,16 @@ import (
 	"image/png"
 	"image"
 	"fmt"
+	"container/list"
 )
 
 type pixel struct {
 	Color color.RGBA
 	Used  bool
+}
+
+type Coord struct{
+	X,Y int
 }
 
 type Surface struct{
@@ -91,6 +96,89 @@ func (s *Surface) toImage() *image.RGBA {
 	}
 	return img
 }
+
+func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed  *list.List) {
+	unUsed = list.New()
+	used = list.New()
+	if p.X > 0 {
+		s.filterPixel(leftPixel(p), used, unUsed)
+	}
+	if p.X < s.Size-1 {
+		s.filterPixel(rightPixel(p), used, unUsed)
+	}
+	if p.Y < s.Size-1 {
+		s.filterPixel(upPixel(p), used, unUsed)
+	}
+	if p.Y > 0 {
+		s.filterPixel(downPixel(p), used, unUsed)
+	}
+	if p.Y < s.Size-1 && p.X > 0 {
+		s.filterPixel(upLeftPixel(p), used, unUsed)
+	}
+	if p.Y < s.Size-1 && p.X < s.Size-1 {
+		s.filterPixel(upRightPixel(p), used, unUsed)
+	}
+	if p.Y > 0 && p.X > 0 {
+		s.filterPixel(downLeftPixel(p), used, unUsed)
+	}
+	if p.Y > 0 && p.X < s.Size-1 {
+		s.filterPixel(downRightPixel(p), used, unUsed)
+	}
+	return used, unUsed
+}
+
+func (s *Surface) filterPixel(p Coord, used, unUsed *list.List) {
+	if s.IsUsed(p.X, p.Y) {
+		used.PushBack(p)
+	}else {
+		unUsed.PushBack(p)
+	}
+}
+
+/*
+++++
+/\
+|
+|
+|
+|
+y
+  x  -----------> +++
+
+*/
+func leftPixel(p Coord) Coord {
+	return Coord{p.X - 1, p.Y}
+}
+
+func rightPixel(p Coord) Coord {
+	return Coord{p.X + 1, p.Y}
+}
+
+func upPixel(p Coord) Coord {
+	return Coord{p.X, p.Y + 1}
+}
+
+func downPixel(p Coord) Coord {
+	return Coord{p.X, p.Y - 1}
+}
+
+func downLeftPixel(p Coord) Coord {
+	return Coord{p.X - 1, p.Y - 1}
+}
+
+func downRightPixel(p Coord) Coord {
+	return Coord{p.X + 1, p.Y - 1}
+}
+
+func upLeftPixel(p Coord) Coord {
+	return Coord{p.X - 1, p.Y + 1}
+}
+
+func upRightPixel(p Coord) Coord {
+	return Coord{p.X + 1, p.Y + 1}
+}
+
+
 
 func check(e error) {
 	if e != nil {

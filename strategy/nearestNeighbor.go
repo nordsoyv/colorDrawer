@@ -27,12 +27,12 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
-	n.addPixelToDraw(pixel{0, 0})
+	n.addPixelToDraw(workSurface.Coord{0, 0})
 
 	n.surface.SetColor(0, 0, color.RGBA{uint8(0), uint8(0), uint8(0), 255})
 	for n.pixelBuffer.Len() > 0 {
 		nextPixel := n.getNextPixel()
-		usedPixels, unUsedPixels := n.findNeighborPixels(nextPixel)
+		usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
 		n.addPixelsToDraw(unUsedPixels)
 
 		//get average color for used neighbor pixels
@@ -42,7 +42,7 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 		//if color at that index is not used
 		if !cube.IsUsed(x, y, z) {
 			cube.SetUsed(x, y, z)
-			n.surface.SetColor(nextPixel.x, nextPixel.y, cube.GetColor(x, y, z))
+			n.surface.SetColor(nextPixel.X, nextPixel.Y, cube.GetColor(x, y, z))
 			continue
 		}else {
 			//  find nearest free color in cube
@@ -67,8 +67,8 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 	totG = 0
 	totB = 0
 	for e := l.Front(); e != nil; e = e.Next() {
-		p := e.Value.(pixel)
-		col := n.surface.GetColor(p.x, p.y)
+		p := e.Value.(workSurface.Coord)
+		col := n.surface.GetColor(p.X, p.Y)
 		totR += int(col.R)
 		totG += int(col.G)
 		totB += int(col.B)
@@ -78,7 +78,7 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 
 }
 
-func (n nearestNeighborStrategy) addPixelToDraw(p pixel) {
+func (n nearestNeighborStrategy) addPixelToDraw(p workSurface.Coord) {
 	n.pixelBuffer.PushBack(p)
 }
 
@@ -87,97 +87,17 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) {
 }
 
 
-func (n nearestNeighborStrategy) getNextPixel() (pixel) {
+func (n nearestNeighborStrategy) getNextPixel() (workSurface.Coord) {
 	return getFrontPixelInList(n.pixelBuffer)
 }
 
-func getFrontPixelInList(l *list.List) pixel {
+func getFrontPixelInList(l *list.List) workSurface.Coord {
 	elem := l.Front()
 	l.Remove(elem)
-	p, ok := elem.Value.(pixel)
+	p, ok := elem.Value.(workSurface.Coord)
 	if !ok {
 		panic("Not a pixel in list!")
 	}
 	return p
 }
 
-func (n nearestNeighborStrategy) findNeighborPixels(p pixel) (used, unUsed  *list.List) {
-	unUsed = list.New()
-	used = list.New()
-	if p.x > 0 {
-		n.filterPixel(leftPixel(p), used, unUsed)
-	}
-	if p.x < n.surface.Size-1 {
-		n.filterPixel(rightPixel(p), used, unUsed)
-	}
-	if p.y < n.surface.Size-1 {
-		n.filterPixel(upPixel(p), used, unUsed)
-	}
-	if p.y > 0 {
-		n.filterPixel(downPixel(p), used, unUsed)
-	}
-	if p.y < n.surface.Size-1 && p.x > 0 {
-		n.filterPixel(upLeftPixel(p), used, unUsed)
-	}
-	if p.y < n.surface.Size-1 && p.x < n.surface.Size-1 {
-		n.filterPixel(upRightPixel(p), used, unUsed)
-	}
-	if p.y > 0 && p.x > 0 {
-		n.filterPixel(downLeftPixel(p), used, unUsed)
-	}
-	if p.y > 0 && p.x < n.surface.Size-1 {
-		n.filterPixel(downRightPixel(p), used, unUsed)
-	}
-	return used, unUsed
-}
-
-func (n nearestNeighborStrategy) filterPixel(p pixel, used, unUsed *list.List) {
-	if n.surface.IsUsed(p.x, p.y) {
-		used.PushBack(p)
-	}else {
-		unUsed.PushBack(p)
-	}
-}
-
-/*
-++++
-/\
-|
-|
-|
-|
-y
-  x  -----------> +++
-
-*/
-func leftPixel(p pixel) pixel {
-	return pixel{p.x - 1, p.y}
-}
-
-func rightPixel(p pixel) pixel {
-	return pixel{p.x + 1, p.y}
-}
-
-func upPixel(p pixel) pixel {
-	return pixel{p.x, p.y + 1}
-}
-
-func downPixel(p pixel) pixel {
-	return pixel{p.x, p.y - 1}
-}
-
-func downLeftPixel(p pixel) pixel {
-	return pixel{p.x - 1, p.y - 1}
-}
-
-func downRightPixel(p pixel) pixel {
-	return pixel{p.x + 1, p.y - 1}
-}
-
-func upLeftPixel(p pixel) pixel {
-	return pixel{p.x - 1, p.y + 1}
-}
-
-func upRightPixel(p pixel) pixel {
-	return pixel{p.x + 1, p.y + 1}
-}
