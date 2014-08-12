@@ -1,13 +1,11 @@
-package strategy
+package colorCube
 
-import "github.com/nordsoyv/colorDrawer/colorCube"
-
-func findUnusedColorInCubeN(startX, startY, startZ,n int, cube *colorCube.ColorCube)  (foundIt bool, foundX, foundY , foundZ int) {
-	foundIt, foundX, foundY, foundZ = findUnusedColorsInTop(startX,startY,startZ,n,cube)
+func (cube *ColorCube) FindUnusedColorInCubeN(startX, startY, startZ, n int) (foundIt bool, foundX, foundY , foundZ int) {
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInTop(startX, startY, startZ, n)
 	if foundIt {
 		return
 	}
-	foundIt, foundX, foundY, foundZ = findUnusedColorsInBottom(startX,startY,startZ,n,cube)
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInBottom(startX, startY, startZ, n)
 	if foundIt {
 		return
 	}
@@ -15,7 +13,7 @@ func findUnusedColorInCubeN(startX, startY, startZ,n int, cube *colorCube.ColorC
 
 }
 
-func findUnusedColorsInTop(startX, startY, startZ, distFromCenter int, cube *colorCube.ColorCube) (foundIt bool, foundX, foundY , foundZ int) {
+func (cube *ColorCube) findUnusedColorsInTop(startX, startY, startZ, distFromCenter int) (foundIt bool, foundX, foundY , foundZ int) {
 	minX := startX - distFromCenter
 	minZ := startZ - distFromCenter
 	maxX := startX + distFromCenter
@@ -31,7 +29,7 @@ func findUnusedColorsInTop(startX, startY, startZ, distFromCenter int, cube *col
 	return false, 0, 0, 0
 }
 
-func findUnusedColorsInBottom(startX, startY, startZ, distFromCenter int, cube *colorCube.ColorCube) (foundIt bool, foundX, foundY , foundZ int) {
+func (cube *ColorCube) findUnusedColorsInBottom(startX, startY, startZ, distFromCenter int) (foundIt bool, foundX, foundY , foundZ int) {
 	minX := startX - distFromCenter
 	minZ := startZ - distFromCenter
 	maxX := startX + distFromCenter
