@@ -34,7 +34,7 @@ func New(bitSize uint8) *ColorCube {
 func (c ColorCube) IsUsed(r, g, b int) bool {
 	if r < 0 || r > (c.SideSize-1) || g < 0 || (g > c.SideSize-1) || b < 0 || (b > c.SideSize-1) {
 		return true
-	}else {
+	} else {
 		return c.Cube[r][g][b]
 	}
 }
@@ -52,7 +52,7 @@ func (c ColorCube) GetColor(x, y, z int) color.RGBA {
 		panic("index out of range")
 	}
 
-	ratio := float64(MAX_SIDE_SIZE - 1) / float64(c.SideSize - 1)
+	ratio := float64(MAX_SIDE_SIZE-1) / float64(c.SideSize-1)
 	xIndex := uint8(math.Trunc(float64(x) * ratio))
 	yIndex := uint8(math.Trunc(float64(y) * ratio))
 	zIndex := uint8(math.Trunc(float64(z) * ratio))
@@ -64,8 +64,8 @@ func (c ColorCube) GetIndexForColor(col color.RGBA) (x, y, z int) {
 	xExact := float64(col.R) * ratio
 	yExact := float64(col.G) * ratio
 	zExact := float64(col.B) * ratio
-	x = int(xExact + 0.5)-1
-	y = int(yExact + 0.5)-1
-	z = int(zExact + 0.5)-1
+	x = int(xExact+0.5) - 1
+	y = int(yExact+0.5) - 1
+	z = int(zExact+0.5) - 1
 	return x, y, z
 }

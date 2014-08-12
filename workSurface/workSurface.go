@@ -1,13 +1,13 @@
 package workSurface
 
 import (
-	"image/color"
-	"os"
 	"bufio"
-	"image/png"
-	"image"
-	"fmt"
 	"container/list"
+	"fmt"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
 )
 
 type pixel struct {
@@ -15,17 +15,17 @@ type pixel struct {
 	Used  bool
 }
 
-type Coord struct{
-	X,Y int
+type Coord struct {
+	X, Y int
 }
 
-type Surface struct{
+type Surface struct {
 	pixels [][]pixel
 	Size   int
 }
 
 func New(sideSize int) Surface {
-	topLevel := make([][] pixel, sideSize)
+	topLevel := make([][]pixel, sideSize)
 	for i := range topLevel {
 		topLevel[i] = make([]pixel, sideSize)
 	}
@@ -68,7 +68,6 @@ func (s *Surface) SetNotUsed(x, y int) {
 	s.pixels[x][y].Used = false
 }
 
-
 func (s *Surface) IsUsed(x, y int) bool {
 	if x >= s.Size || y >= s.Size {
 		panic("IsUsed :: index out of range")
@@ -78,7 +77,7 @@ func (s *Surface) IsUsed(x, y int) bool {
 
 func (s *Surface) ToPng(fileName string) {
 	fmt.Println("Writing to file : ", fileName)
-	outfile , err := os.Create(fileName)
+	outfile, err := os.Create(fileName)
 	check(err)
 	defer outfile.Close()
 	writer := bufio.NewWriter(outfile)
@@ -90,14 +89,14 @@ func (s *Surface) ToPng(fileName string) {
 func (s *Surface) toImage() *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, s.Size, s.Size))
 	for x := 0; x < s.Size; x++ {
-		for y := 0 ; y < s.Size; y++ {
+		for y := 0; y < s.Size; y++ {
 			img.Set(x, y, s.GetColor(x, y))
 		}
 	}
 	return img
 }
 
-func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed  *list.List) {
+func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed *list.List) {
 	unUsed = list.New()
 	used = list.New()
 	if p.X > 0 {
@@ -130,7 +129,7 @@ func (s *Surface) FindNeighborPixels(p Coord) (used, unUsed  *list.List) {
 func (s *Surface) filterPixel(p Coord, used, unUsed *list.List) {
 	if s.IsUsed(p.X, p.Y) {
 		used.PushBack(p)
-	}else {
+	} else {
 		unUsed.PushBack(p)
 	}
 }
@@ -177,8 +176,6 @@ func upLeftPixel(p Coord) Coord {
 func upRightPixel(p Coord) Coord {
 	return Coord{p.X + 1, p.Y + 1}
 }
-
-
 
 func check(e error) {
 	if e != nil {

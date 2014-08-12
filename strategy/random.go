@@ -1,11 +1,10 @@
 package strategy
 
 import (
-	"math/rand"
-	"github.com/nordsoyv/colorDrawer/workSurface"
 	"github.com/nordsoyv/colorDrawer/colorCube"
+	"github.com/nordsoyv/colorDrawer/workSurface"
+	"math/rand"
 )
-
 
 func Random() ColorStrategy {
 	var s randomImageStrategy
@@ -29,5 +28,3 @@ func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) workSurfac
 	}
 	return surface
 }
-
-

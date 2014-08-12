@@ -7,16 +7,16 @@ import (
 
 type Config struct {
 	ColorCubeBitSize int
-	OutputFilename string
+	OutputFilename   string
 }
 
-func Read(path string) (Config) {
+func Read(path string) Config {
 	var config Config
-	configFile , err := ioutil.ReadFile(path)
+	configFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
-	json.Unmarshal( configFile , &config)
-	return config;
+	json.Unmarshal(configFile, &config)
+	return config
 
 }

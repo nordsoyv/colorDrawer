@@ -127,7 +127,6 @@ func TestFindUnusedColorsInLeftOneUnused(t *testing.T) {
 	}
 }
 
-
 func TestFindUnusedColorsInRightAllUsed(t *testing.T) {
 	cube := New(uint8(5))
 	setCubeAsUsed(cube)
@@ -169,15 +168,12 @@ func TestFindUnusedColorsInRightOneUnused(t *testing.T) {
 	}
 }
 
-
-
 func setCubeAsUsed(cube *ColorCube) {
 	for x := 0; x < cube.SideSize; x++ {
 		for y := 0; y < cube.SideSize; y++ {
 			for z := 0; z < cube.SideSize; z++ {
-				cube.Cube[x][y][z] = true;
+				cube.Cube[x][y][z] = true
 			}
 		}
 	}
 }
-

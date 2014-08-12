@@ -1,16 +1,15 @@
 package strategy
 
 import (
-	"image/color"
-	"github.com/nordsoyv/colorDrawer/workSurface"
 	"github.com/nordsoyv/colorDrawer/colorCube"
-
+	"github.com/nordsoyv/colorDrawer/workSurface"
+	"image/color"
 )
 
 type iteratorStrategy struct {
 }
 
-func Iterator() ColorStrategy{
+func Iterator() ColorStrategy {
 	var s iteratorStrategy
 	return s
 }

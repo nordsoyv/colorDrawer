@@ -1,9 +1,9 @@
 package strategy
 
 import (
-	"testing"
-	"github.com/nordsoyv/colorDrawer/config"
 	_ "container/list"
+	"github.com/nordsoyv/colorDrawer/config"
+	"testing"
 )
 
 func TestNew(t *testing.T) {
@@ -20,5 +20,3 @@ func setup() nearestNeighborStrategy {
 	n, _ := colorStrat.(nearestNeighborStrategy)
 	return n
 }
-
-

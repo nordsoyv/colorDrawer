@@ -1,10 +1,10 @@
 package strategy
 
 import (
-	"github.com/nordsoyv/colorDrawer/colorCube"
-	"github.com/nordsoyv/colorDrawer/workSurface"
 	"container/list"
+	"github.com/nordsoyv/colorDrawer/colorCube"
 	"github.com/nordsoyv/colorDrawer/config"
+	"github.com/nordsoyv/colorDrawer/workSurface"
 	"image/color"
 )
 
@@ -12,8 +12,7 @@ func NearestNeighbor(c config.Config) ColorStrategy {
 	imageSize := 1 << uint(((c.ColorCubeBitSize + c.ColorCubeBitSize + c.ColorCubeBitSize) / 2))
 	surface := workSurface.New(imageSize)
 
-
-	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255  }, surface}
+	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255}, surface}
 }
 
 type pixel struct {
@@ -22,8 +21,8 @@ type pixel struct {
 
 type nearestNeighborStrategy struct {
 	pixelBuffer *list.List
-	startColor color.RGBA
-	surface    workSurface.Surface
+	startColor  color.RGBA
+	surface     workSurface.Surface
 }
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
@@ -44,22 +43,16 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 			cube.SetUsed(x, y, z)
 			n.surface.SetColor(nextPixel.X, nextPixel.Y, cube.GetColor(x, y, z))
 			continue
-		}else {
+		} else {
 			//  find nearest free color in cube
 			//	set as used, and color surface with it. continue loop
 		}
 
-
-
 	}
 
-
-	return n.surface;
+	return n.surface
 
 }
-
-
-
 
 func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 	var totR, totG, totB int
@@ -74,7 +67,7 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 		totB += int(col.B)
 	}
 	numElem := l.Len()
-	return color.RGBA { uint8(totR / numElem), uint8(totG / numElem), uint8(totB / numElem), 255  }
+	return color.RGBA{uint8(totR / numElem), uint8(totG / numElem), uint8(totB / numElem), 255}
 
 }
 
@@ -86,8 +79,7 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) {
 	n.pixelBuffer.PushBackList(l)
 }
 
-
-func (n nearestNeighborStrategy) getNextPixel() (workSurface.Coord) {
+func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord {
 	return getFrontPixelInList(n.pixelBuffer)
 }
 
@@ -100,4 +92,3 @@ func getFrontPixelInList(l *list.List) workSurface.Coord {
 	}
 	return p
 }
-
