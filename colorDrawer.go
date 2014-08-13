@@ -10,7 +10,7 @@ import (
 func main() {
 	configuration := config.Read("config.json")
 	cube := colorCube.New(uint8(configuration.ColorCubeBitSize))
-	strat := strategy.Iterator()
+	strat := strategy.NearestNeighbor(configuration)
 	surface := strat.GenerateImage(cube)
 	surface.ToPng(configuration.OutputFilename)
 }

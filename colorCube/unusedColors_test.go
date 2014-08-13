@@ -186,6 +186,107 @@ func TestFindUnusedColorsInRightOneUnused(t *testing.T) {
 	}
 }
 
+func TestFindUnusedColorsInFrontOneUnused(t *testing.T) {
+	cube := New(uint8(5))
+	setCubeAsUsed(cube)
+	cube.SetUnUsed(5, 5, 4)
+	foundIt, _, _, _ := cube.findUnusedColorsInFront(5, 5, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 4)
+	cube.SetUnUsed(5, 5, 3)
+	foundIt, _, _, _ = cube.findUnusedColorsInFront(5, 5, 5, 1)
+	if foundIt {
+		t.Error("Should not find an unused color")
+	}
+	foundIt, _, _, _ = cube.findUnusedColorsInFront(5, 5, 5, 2)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 3)
+	cube.SetUnUsed(4, 4, 4)
+	foundIt, _, _, _ = cube.findUnusedColorsInFront(5, 5, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(4, 4, 4)
+	cube.SetUnUsed(1, 1, 4)
+	foundIt, _, _, _ = cube.findUnusedColorsInFront(0, 0, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+}
+
+
+func TestFindUnusedColorsInBackOneUnused(t *testing.T) {
+	cube := New(uint8(5))
+	setCubeAsUsed(cube)
+	cube.SetUnUsed(5, 5, 6)
+	foundIt, _, _, _ := cube.findUnusedColorsInBack(5, 5, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 6)
+	cube.SetUnUsed(5, 5, 7)
+	foundIt, _, _, _ = cube.findUnusedColorsInBack(5, 5, 5, 1)
+	if foundIt {
+		t.Error("Should not find an unused color")
+	}
+	foundIt, _, _, _ = cube.findUnusedColorsInBack(5, 5, 5, 2)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 7)
+	cube.SetUnUsed(6, 6, 6)
+	foundIt, _, _, _ = cube.findUnusedColorsInBack(5, 5, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(6, 6, 6)
+	cube.SetUnUsed(1, 1, 6)
+	foundIt, _, _, _ = cube.findUnusedColorsInBack(0, 0, 5, 1)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+}
+
+func TestFindUnusedColorsInCubekOneUnused(t *testing.T) {
+	cube := New(uint8(5))
+	setCubeAsUsed(cube)
+	cube.SetUnUsed(5, 5, 6)
+	foundIt, _, _, _ := cube.FindUnusedColorInCube(5, 5, 5)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 6)
+	cube.SetUnUsed(5, 5, 7)
+	foundIt, _, _, _ = cube.FindUnusedColorInCube(5, 5, 5)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(5, 5, 7)
+	cube.SetUnUsed(6, 6, 6)
+	foundIt, _, _, _ = cube.FindUnusedColorInCube(5, 5, 5)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(6, 6, 6)
+	cube.SetUnUsed(1, 1, 6)
+	foundIt, _, _, _ = cube.FindUnusedColorInCube(0, 0, 5)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+	cube.SetUsed(1, 1, 6)
+	cube.SetUnUsed(1, 1, 1)
+	foundIt, _, _, _ = cube.FindUnusedColorInCube(5, 5, 5)
+	if !foundIt {
+		t.Error("Should find an unused color")
+	}
+}
+
+
+
 func setCubeAsUsed(cube *ColorCube) {
 	for x := 0; x < cube.SideSize; x++ {
 		for y := 0; y < cube.SideSize; y++ {

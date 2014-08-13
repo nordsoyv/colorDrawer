@@ -1,11 +1,37 @@
 package colorCube
 
-func (cube *ColorCube) FindUnusedColorInCubeN(startX, startY, startZ, n int) (foundIt bool, foundX, foundY, foundZ int) {
+func (cube *ColorCube) FindUnusedColorInCube(startX, startY, startZ int) (foundIt bool, foundX, foundY, foundZ int) {
+	foundIt = false
+	numIterations := 1
+	for !foundIt && numIterations < cube.SideSize {
+		foundIt, foundX, foundY, foundZ = cube.findUnusedColorInCubeN(startX, startY, startZ, numIterations)
+		numIterations++
+	}
+	return
+}
+
+func (cube *ColorCube) findUnusedColorInCubeN(startX, startY, startZ, n int) (foundIt bool, foundX, foundY, foundZ int) {
 	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInTop(startX, startY, startZ, n)
 	if foundIt {
 		return
 	}
 	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInBottom(startX, startY, startZ, n)
+	if foundIt {
+		return
+	}
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInLeft(startX, startY, startZ, n)
+	if foundIt {
+		return
+	}
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInRight(startX, startY, startZ, n)
+	if foundIt {
+		return
+	}
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInFront(startX, startY, startZ, n)
+	if foundIt {
+		return
+	}
+	foundIt, foundX, foundY, foundZ = cube.findUnusedColorsInBack(startX, startY, startZ, n)
 	if foundIt {
 		return
 	}
