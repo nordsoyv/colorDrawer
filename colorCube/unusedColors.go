@@ -45,6 +45,13 @@ func (cube *ColorCube) findUnusedColorsInTop(startX, startY, startZ, distFromCen
 	maxX := startX + distFromCenter
 	maxZ := startZ + distFromCenter
 	yPos := startY + distFromCenter
+
+	if minX < 0 {minX = 0}
+	if minZ < 0 {minZ = 0}
+	if maxX > cube.SideSize {maxX = cube.SideSize}
+	if maxZ > cube.SideSize {maxZ = cube.SideSize}
+	if yPos < 0 || yPos > cube.SideSize { return}
+
 	for x := minX; x <= maxX; x++ {
 		for z := minZ; z <= maxZ; z++ {
 			if !cube.IsUsed(x, yPos, z) {
@@ -61,6 +68,13 @@ func (cube *ColorCube) findUnusedColorsInBottom(startX, startY, startZ, distFrom
 	maxX := startX + distFromCenter
 	maxZ := startZ + distFromCenter
 	yPos := startY - distFromCenter
+
+	if minX < 0 {minX = 0}
+	if minZ < 0 {minZ = 0}
+	if maxX > cube.SideSize {maxX = cube.SideSize}
+	if maxZ > cube.SideSize {maxZ = cube.SideSize}
+	if yPos < 0 || yPos > cube.SideSize { return}
+
 	for x := minX; x <= maxX; x++ {
 		for z := minZ; z <= maxZ; z++ {
 			if !cube.IsUsed(x, yPos, z) {
@@ -77,6 +91,14 @@ func (cube *ColorCube) findUnusedColorsInLeft(startX, startY, startZ, distFromCe
 	maxY := startY + distFromCenter
 	maxZ := startZ + distFromCenter
 	xPos := startX - distFromCenter
+
+	if minY < 0 {minY = 0}
+	if minZ < 0 {minZ = 0}
+	if maxY > cube.SideSize {maxY = cube.SideSize}
+	if maxZ > cube.SideSize {maxZ = cube.SideSize}
+	if xPos < 0 || xPos > cube.SideSize { return}
+
+
 	for y := minY; y <= maxY; y++ {
 		for z := minZ; z <= maxZ; z++ {
 			if !cube.IsUsed(xPos, y, z) {
@@ -93,6 +115,14 @@ func (cube *ColorCube) findUnusedColorsInRight(startX, startY, startZ, distFromC
 	maxY := startY + distFromCenter
 	maxZ := startZ + distFromCenter
 	xPos := startX + distFromCenter
+
+	if minY < 0 {minY = 0}
+	if minZ < 0 {minZ = 0}
+	if maxY > cube.SideSize {maxY = cube.SideSize}
+	if maxZ > cube.SideSize {maxZ = cube.SideSize}
+	if xPos < 0 || xPos > cube.SideSize { return}
+
+
 	for y := minY; y <= maxY; y++ {
 		for z := minZ; z <= maxZ; z++ {
 			if !cube.IsUsed(xPos, y, z) {
@@ -109,6 +139,13 @@ func (cube *ColorCube) findUnusedColorsInFront(startX, startY, startZ, distFromC
 	maxY := startY + distFromCenter
 	maxX := startX + distFromCenter
 	zPos := startZ - distFromCenter
+
+	if minX < 0 {minX = 0}
+	if minY < 0 {minY = 0}
+	if maxX > cube.SideSize {maxX = cube.SideSize}
+	if maxY > cube.SideSize {maxY = cube.SideSize}
+	if zPos < 0 || zPos > cube.SideSize { return}
+
 	for x := minX; x <= maxX; x++ {
 		for y := minY; y <= maxY; y++ {
 			if !cube.IsUsed(x, y, zPos) {
@@ -125,6 +162,13 @@ func (cube *ColorCube) findUnusedColorsInBack(startX, startY, startZ, distFromCe
 	maxY := startY + distFromCenter
 	maxX := startX + distFromCenter
 	zPos := startZ + distFromCenter
+
+	if minX < 0 {minX = 0}
+	if minY < 0 {minY = 0}
+	if maxX > cube.SideSize {maxX = cube.SideSize}
+	if maxY > cube.SideSize {maxY = cube.SideSize}
+	if zPos < 0 || zPos > cube.SideSize { return}
+
 	for x := minX; x <= maxX; x++ {
 		for y := minY; y <= maxY; y++ {
 			if !cube.IsUsed(x, y, zPos) {
