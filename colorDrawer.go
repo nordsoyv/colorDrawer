@@ -56,12 +56,9 @@ func main() {
 	doneChan := make(chan bool)
 	imageUpdateChan := make(chan strategy.ImageUpdate, 100)
 	go strat.GenerateImage(doneChan, imageUpdateChan)
-	running = true
 
+	running = true
 	// Main loop.
-
-	running = true
-
 	var event allegro.Event
 	for running {
 		e, _ := eventQueue.GetNextEvent(&event)
@@ -75,14 +72,18 @@ func main() {
 			}
 		}
 
-		select {
-		case imgUp := <-imageUpdateChan:
+		if numItems := len(imageUpdateChan); numItems > 0 {
 			buffer := display.Backbuffer()
 			allegro.SetTargetBitmap(buffer)
-			color := allegro.MapRGB(imgUp.R, imgUp.G, imgUp.B)
-			allegro.PutPixel(imgUp.X, imgUp.Y, color)
+			for i := 0; i < numItems; i++ {
+				imgUp := <-imageUpdateChan
+				allegro.PutPixel(imgUp.X, imgUp.Y, allegro.MapRGB(imgUp.R, imgUp.G, imgUp.B))
+
+			}
 			allegro.FlipDisplay()
-			// fmt.Println(imgUp)
+		}
+
+		select {
 		case <-doneChan:
 			running = false
 		default:

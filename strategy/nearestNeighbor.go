@@ -126,15 +126,15 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) int {
 
 func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
 	var randVal int
-	if n.pixelBuffer.Len() < 2 {
+	if n.pixelBuffer.Len() < 5 {
 		randVal = rand.Intn(n.pixelBuffer.Len())
 	} else {
-		randVal = rand.Intn(2)
+		randVal = rand.Intn(5)
 	}
 
-	elem := n.pixelBuffer.Front()
+	elem := n.pixelBuffer.Back()
 	for i := 0; i < randVal; i++ {
-		elem = elem.Next()
+		elem = elem.Prev()
 	}
 	//	elem := n.pixelBuffer.Front()
 	p, ok := elem.Value.(workSurface.Coord2D)
