@@ -3,7 +3,7 @@ package colorCube
 func (cube *ColorCube) FindUnusedColorInCube(startX, startY, startZ int) (foundIt bool, foundX, foundY, foundZ int) {
 	foundIt = false
 	numIterations := 1
-	for !foundIt && numIterations < cube.SideSize {
+	for !foundIt && numIterations <= cube.SideSize {
 		foundIt, foundX, foundY, foundZ = cube.findUnusedColorInCubeN(startX, startY, startZ, numIterations)
 		numIterations++
 	}
@@ -46,11 +46,21 @@ func (cube *ColorCube) findUnusedColorsInTop(startX, startY, startZ, distFromCen
 	maxZ := startZ + distFromCenter
 	yPos := startY + distFromCenter
 
-	if minX < 0 {minX = 0}
-	if minZ < 0 {minZ = 0}
-	if maxX > cube.SideSize {maxX = cube.SideSize}
-	if maxZ > cube.SideSize {maxZ = cube.SideSize}
-	if yPos < 0 || yPos > cube.SideSize { return}
+	if minX < 0 {
+		minX = 0
+	}
+	if minZ < 0 {
+		minZ = 0
+	}
+	if maxX > cube.SideSize {
+		maxX = cube.SideSize
+	}
+	if maxZ > cube.SideSize {
+		maxZ = cube.SideSize
+	}
+	if yPos < 0 || yPos > cube.SideSize {
+		return
+	}
 
 	for x := minX; x <= maxX; x++ {
 		for z := minZ; z <= maxZ; z++ {
@@ -69,11 +79,21 @@ func (cube *ColorCube) findUnusedColorsInBottom(startX, startY, startZ, distFrom
 	maxZ := startZ + distFromCenter
 	yPos := startY - distFromCenter
 
-	if minX < 0 {minX = 0}
-	if minZ < 0 {minZ = 0}
-	if maxX > cube.SideSize {maxX = cube.SideSize}
-	if maxZ > cube.SideSize {maxZ = cube.SideSize}
-	if yPos < 0 || yPos > cube.SideSize { return}
+	if minX < 0 {
+		minX = 0
+	}
+	if minZ < 0 {
+		minZ = 0
+	}
+	if maxX > cube.SideSize {
+		maxX = cube.SideSize
+	}
+	if maxZ > cube.SideSize {
+		maxZ = cube.SideSize
+	}
+	if yPos < 0 || yPos > cube.SideSize {
+		return
+	}
 
 	for x := minX; x <= maxX; x++ {
 		for z := minZ; z <= maxZ; z++ {
@@ -92,12 +112,21 @@ func (cube *ColorCube) findUnusedColorsInLeft(startX, startY, startZ, distFromCe
 	maxZ := startZ + distFromCenter
 	xPos := startX - distFromCenter
 
-	if minY < 0 {minY = 0}
-	if minZ < 0 {minZ = 0}
-	if maxY > cube.SideSize {maxY = cube.SideSize}
-	if maxZ > cube.SideSize {maxZ = cube.SideSize}
-	if xPos < 0 || xPos > cube.SideSize { return}
-
+	if minY < 0 {
+		minY = 0
+	}
+	if minZ < 0 {
+		minZ = 0
+	}
+	if maxY > cube.SideSize {
+		maxY = cube.SideSize
+	}
+	if maxZ > cube.SideSize {
+		maxZ = cube.SideSize
+	}
+	if xPos < 0 || xPos > cube.SideSize {
+		return
+	}
 
 	for y := minY; y <= maxY; y++ {
 		for z := minZ; z <= maxZ; z++ {
@@ -116,12 +145,21 @@ func (cube *ColorCube) findUnusedColorsInRight(startX, startY, startZ, distFromC
 	maxZ := startZ + distFromCenter
 	xPos := startX + distFromCenter
 
-	if minY < 0 {minY = 0}
-	if minZ < 0 {minZ = 0}
-	if maxY > cube.SideSize {maxY = cube.SideSize}
-	if maxZ > cube.SideSize {maxZ = cube.SideSize}
-	if xPos < 0 || xPos > cube.SideSize { return}
-
+	if minY < 0 {
+		minY = 0
+	}
+	if minZ < 0 {
+		minZ = 0
+	}
+	if maxY > cube.SideSize {
+		maxY = cube.SideSize
+	}
+	if maxZ > cube.SideSize {
+		maxZ = cube.SideSize
+	}
+	if xPos < 0 || xPos > cube.SideSize {
+		return
+	}
 
 	for y := minY; y <= maxY; y++ {
 		for z := minZ; z <= maxZ; z++ {
@@ -140,11 +178,21 @@ func (cube *ColorCube) findUnusedColorsInFront(startX, startY, startZ, distFromC
 	maxX := startX + distFromCenter
 	zPos := startZ - distFromCenter
 
-	if minX < 0 {minX = 0}
-	if minY < 0 {minY = 0}
-	if maxX > cube.SideSize {maxX = cube.SideSize}
-	if maxY > cube.SideSize {maxY = cube.SideSize}
-	if zPos < 0 || zPos > cube.SideSize { return}
+	if minX < 0 {
+		minX = 0
+	}
+	if minY < 0 {
+		minY = 0
+	}
+	if maxX > cube.SideSize {
+		maxX = cube.SideSize
+	}
+	if maxY > cube.SideSize {
+		maxY = cube.SideSize
+	}
+	if zPos < 0 || zPos > cube.SideSize {
+		return
+	}
 
 	for x := minX; x <= maxX; x++ {
 		for y := minY; y <= maxY; y++ {
@@ -163,11 +211,21 @@ func (cube *ColorCube) findUnusedColorsInBack(startX, startY, startZ, distFromCe
 	maxX := startX + distFromCenter
 	zPos := startZ + distFromCenter
 
-	if minX < 0 {minX = 0}
-	if minY < 0 {minY = 0}
-	if maxX > cube.SideSize {maxX = cube.SideSize}
-	if maxY > cube.SideSize {maxY = cube.SideSize}
-	if zPos < 0 || zPos > cube.SideSize { return}
+	if minX < 0 {
+		minX = 0
+	}
+	if minY < 0 {
+		minY = 0
+	}
+	if maxX > cube.SideSize {
+		maxX = cube.SideSize
+	}
+	if maxY > cube.SideSize {
+		maxY = cube.SideSize
+	}
+	if zPos < 0 || zPos > cube.SideSize {
+		return
+	}
 
 	for x := minX; x <= maxX; x++ {
 		for y := minY; y <= maxY; y++ {
