@@ -13,8 +13,8 @@ import (
 func NearestNeighbor(c config.Config) ColorStrategy {
 	imageSize := 1 << uint(((c.ColorCubeBitSize + c.ColorCubeBitSize + c.ColorCubeBitSize) / 2))
 	surface := workSurface.New(imageSize)
-
-	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255}, surface}
+	fileName := c.OutputFilename
+	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255}, surface, fileName}
 }
 
 type pixel struct {
@@ -25,9 +25,10 @@ type nearestNeighborStrategy struct {
 	pixelBuffer *list.List
 	startColor  color.RGBA
 	surface     workSurface.Surface
+	fileName    string
 }
 
-func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
+func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) {
 	n.addPixelToDraw(workSurface.Coord2D{10, 10})
 	//n.addPixelToDraw(workSurface.Coord2D{250, 250})
 	//n.addPixelToDraw(workSurface.Coord2D{450, 450})
@@ -73,7 +74,7 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 			}
 		}
 	}
-	return n.surface
+	n.surface.ToPng(n.fileName)
 }
 
 func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {

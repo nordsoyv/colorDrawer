@@ -2,19 +2,22 @@ package strategy
 
 import (
 	"github.com/nordsoyv/colorDrawer/colorCube"
+	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/workSurface"
 	"math/rand"
 )
 
-func Random() ColorStrategy {
+func Random(c config.Config) ColorStrategy {
 	var s randomImageStrategy
+	s.fileName = c.OutputFilename
 	return s
 }
 
 type randomImageStrategy struct {
+	fileName string
 }
 
-func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
+func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) {
 	imageSize := 1 << uint(((cube.BitSize + cube.BitSize + cube.BitSize) / 2))
 	surface := workSurface.New(imageSize)
 	for x := 0; x < surface.Size; x++ {
@@ -26,5 +29,5 @@ func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) workSurfac
 			surface.SetUsed(x, y)
 		}
 	}
-	return surface
+	surface.ToPng(s.fileName)
 }

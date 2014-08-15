@@ -1,4 +1,4 @@
 {
-    "colorCubeBitSize" : 6,
-    "outputFilename" : "out6x6.png"
+    "colorCubeBitSize" : 4,
+    "outputFilename" : "out4x4.png"
 }

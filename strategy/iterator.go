@@ -2,19 +2,22 @@ package strategy
 
 import (
 	"github.com/nordsoyv/colorDrawer/colorCube"
+	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/workSurface"
 	"image/color"
 )
 
 type iteratorStrategy struct {
+	fileName string
 }
 
-func Iterator() ColorStrategy {
+func Iterator(c config.Config) ColorStrategy {
 	var s iteratorStrategy
+	s.fileName = c.OutputFilename
 	return s
 }
 
-func (s iteratorStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
+func (s iteratorStrategy) GenerateImage(cube *colorCube.ColorCube) {
 	imageSize := 1 << uint(((cube.BitSize + cube.BitSize + cube.BitSize) / 2))
 	surface := workSurface.New(imageSize)
 	colorStorage := make([]color.RGBA, imageSize*imageSize)
@@ -35,5 +38,5 @@ func (s iteratorStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.S
 			nextColorSpace++
 		}
 	}
-	return surface
+	surface.ToPng(s.fileName)
 }
