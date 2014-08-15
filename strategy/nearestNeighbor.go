@@ -2,7 +2,7 @@ package strategy
 
 import (
 	"container/list"
-	"fmt"
+	// "fmt"
 	"github.com/nordsoyv/colorDrawer/colorCube"
 	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/workSurface"
@@ -14,7 +14,8 @@ func NearestNeighbor(c config.Config) ColorStrategy {
 	imageSize := 1 << uint(((c.ColorCubeBitSize + c.ColorCubeBitSize + c.ColorCubeBitSize) / 2))
 	surface := workSurface.New(imageSize)
 	fileName := c.OutputFilename
-	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255}, surface, fileName}
+	cube := colorCube.New(uint8(c.ColorCubeBitSize))
+	return nearestNeighborStrategy{list.New(), color.RGBA{255, 255, 255, 255}, surface, fileName, cube}
 }
 
 type pixel struct {
@@ -26,18 +27,19 @@ type nearestNeighborStrategy struct {
 	startColor  color.RGBA
 	surface     workSurface.Surface
 	fileName    string
+	cube        *colorCube.ColorCube
 }
 
-func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) {
+func (n nearestNeighborStrategy) GenerateImage(doneChan chan bool, imageUpdateChan chan ImageUpdate) {
 	n.addPixelToDraw(workSurface.Coord2D{10, 10})
 	//n.addPixelToDraw(workSurface.Coord2D{250, 250})
 	//n.addPixelToDraw(workSurface.Coord2D{450, 450})
 
-	n.surface.SetColor(10, 10, color.RGBA{uint8(255), uint8(0), uint8(0), 255})
+	n.surface.SetColor(10, 10, color.RGBA{uint8(255), uint8(255), uint8(255), 255})
 	//n.surface.SetColor(250, 250, color.RGBA{uint8(0), uint8(255), uint8(0), 255})
 	//n.surface.SetColor(450, 450, color.RGBA{uint8(0), uint8(0), uint8(255), 255})
 
-	totalNumberOfPixels := n.surface.Size * n.surface.Size
+	// totalNumberOfPixels := n.surface.Size * n.surface.Size
 	currentPixel := 1
 
 	for n.pixelBuffer.Len() > 0 {
@@ -45,7 +47,7 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) {
 		usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
 		n.addPixelsToDraw(unUsedPixels)
 		if currentPixel%1000 == 0 {
-			fmt.Printf("Current pixel (%4v , %4v) %6v / %6v , queueLenght %4v\n", nextPixel.X, nextPixel.Y, currentPixel, totalNumberOfPixels, n.pixelBuffer.Len())
+			// fmt.Printf("Current pixel (%4v , %4v) %6v / %6v , queueLenght %4v\n", nextPixel.X, nextPixel.Y, currentPixel, totalNumberOfPixels, n.pixelBuffer.Len())
 		}
 		currentPixel++
 
@@ -57,24 +59,26 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) {
 			avgColor = n.surface.GetColor(nextPixel.X, nextPixel.Y)
 		}
 		//find index for this color in colorcube
-		x, y, z := cube.GetIndexForColor(avgColor)
+		x, y, z := n.cube.GetIndexForColor(avgColor)
 		//if color at that index is not used
-		if !cube.IsUsed(x, y, z) {
-			cube.SetUsed(x, y, z)
-			n.surface.SetColor(nextPixel.X, nextPixel.Y, cube.GetColor(x, y, z))
+		if !n.cube.IsUsed(x, y, z) {
+			n.cube.SetUsed(x, y, z)
+			n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(x, y, z))
 		} else {
 			//  find nearest free color in cube
-			found, foundX, foundY, foundZ := cube.FindUnusedColorInCube(x, y, z)
+			found, foundX, foundY, foundZ := n.cube.FindUnusedColorInCube(x, y, z)
 			if found {
 				//	set as used, and color surface with it. continue loop
-				cube.SetUsed(foundX, foundY, foundZ)
-				n.surface.SetColor(nextPixel.X, nextPixel.Y, cube.GetColor(foundX, foundY, foundZ))
+				n.cube.SetUsed(foundX, foundY, foundZ)
+				n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(foundX, foundY, foundZ))
+				imageUpdateChan <- ImageUpdate{nextPixel.X, nextPixel.Y, byte(foundX), byte(foundY), byte(foundZ)}
 			} else {
 				panic("Coudnt fint color!")
 			}
 		}
 	}
 	n.surface.ToPng(n.fileName)
+	doneChan <- true
 }
 
 func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {

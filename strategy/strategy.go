@@ -1,14 +1,10 @@
 package strategy
 
-import (
-	"github.com/nordsoyv/colorDrawer/colorCube"
-)
-
 type ColorStrategy interface {
-	GenerateImage(*colorCube.ColorCube)
+	GenerateImage(chan bool, chan ImageUpdate)
 }
 
 type ImageUpdate struct {
 	X, Y    int
-	R, G, B int
+	R, G, B byte
 }

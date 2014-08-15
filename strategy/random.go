@@ -10,15 +10,17 @@ import (
 func Random(c config.Config) ColorStrategy {
 	var s randomImageStrategy
 	s.fileName = c.OutputFilename
+	s.cube = colorCube.New(uint8(c.ColorCubeBitSize))
 	return s
 }
 
 type randomImageStrategy struct {
 	fileName string
+	cube     *colorCube.ColorCube
 }
 
-func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) {
-	imageSize := 1 << uint(((cube.BitSize + cube.BitSize + cube.BitSize) / 2))
+func (s randomImageStrategy) GenerateImage(doneChan chan bool, imageUpdateChan chan ImageUpdate) {
+	imageSize := 1 << uint(((s.cube.BitSize + s.cube.BitSize + s.cube.BitSize) / 2))
 	surface := workSurface.New(imageSize)
 	for x := 0; x < surface.Size; x++ {
 		for y := 0; y < surface.Size; y++ {
@@ -30,4 +32,5 @@ func (s randomImageStrategy) GenerateImage(cube *colorCube.ColorCube) {
 		}
 	}
 	surface.ToPng(s.fileName)
+	doneChan <- true
 }
