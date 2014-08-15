@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"sync"
 )
 
 type pixel struct {
@@ -22,6 +23,7 @@ type Coord2D struct {
 type Surface struct {
 	pixels [][]pixel
 	Size   int
+	lock   *sync.RWMutex
 }
 
 func New(sideSize int) Surface {
@@ -29,13 +31,16 @@ func New(sideSize int) Surface {
 	for i := range topLevel {
 		topLevel[i] = make([]pixel, sideSize)
 	}
-	return Surface{topLevel, sideSize}
+	var lock sync.RWMutex
+	return Surface{topLevel, sideSize, &lock}
 }
 
 func (s *Surface) GetColor(x, y int) color.RGBA {
 	if x >= s.Size || y >= s.Size {
 		panic("GetColor :: index out of range")
 	}
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.pixels[x][y].Color
 }
 
@@ -43,6 +48,8 @@ func (s *Surface) SetColorRGB(x, y int, r, g, b uint8) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.pixels[x][y].Color = color.RGBA{r, g, b, 255}
 }
 
@@ -50,14 +57,18 @@ func (s *Surface) SetColor(x, y int, c color.RGBA) {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("SetColor :: index out of range, was %v or %v, should be max %v", x, y, s.Size))
 	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.pixels[x][y].Color = color.RGBA{c.R, c.G, c.B, 255}
-	s.SetUsed(x, y)
+	s.pixels[x][y].Used = true
 }
 
 func (s *Surface) SetUsed(x, y int) {
 	if x >= s.Size || y >= s.Size {
 		panic("SetUsed :: index out of range")
 	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.pixels[x][y].Used = true
 }
 
@@ -65,6 +76,8 @@ func (s *Surface) SetNotUsed(x, y int) {
 	if x >= s.Size || y >= s.Size {
 		panic("SetNotUsed :: index out of range")
 	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	s.pixels[x][y].Used = false
 }
 
@@ -72,6 +85,8 @@ func (s *Surface) IsUsed(x, y int) bool {
 	if x >= s.Size || y >= s.Size {
 		panic(fmt.Sprintf("IsUsed :: index out of range (%v,%v)", x, y))
 	}
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.pixels[x][y].Used
 }
 

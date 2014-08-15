@@ -3,6 +3,7 @@ package colorCube
 import (
 	"image/color"
 	"math"
+	"sync"
 )
 
 const MAX_BIT_SIZE = 8
@@ -12,6 +13,7 @@ type ColorCube struct {
 	SideSize int
 	BitSize  uint8
 	Cube     [][][]bool
+	lock     *sync.RWMutex
 }
 
 func New(bitSize uint8) *ColorCube {
@@ -27,7 +29,8 @@ func New(bitSize uint8) *ColorCube {
 		}
 		topLevel[i] = middleLevel
 	}
-	c := ColorCube{sideSize, bitSize, topLevel}
+	var lock sync.RWMutex
+	c := ColorCube{sideSize, bitSize, topLevel, &lock}
 	return &c
 }
 
@@ -35,15 +38,21 @@ func (c ColorCube) IsUsed(r, g, b int) bool {
 	if r < 0 || r > (c.SideSize-1) || g < 0 || (g > c.SideSize-1) || b < 0 || (b > c.SideSize-1) {
 		return true
 	} else {
+		c.lock.RLock()
+		defer c.lock.RUnlock()
 		return c.Cube[r][g][b]
 	}
 }
 
 func (c ColorCube) SetUsed(r, g, b int) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.Cube[r][g][b] = true
 }
 
 func (c ColorCube) SetUnUsed(r, g, b int) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.Cube[r][g][b] = false
 }
 
