@@ -7,6 +7,7 @@ import (
 	"github.com/nordsoyv/colorDrawer/workSurface"
 	"image/color"
 	"fmt"
+	"math/rand"
 )
 
 func NearestNeighbor(c config.Config) ColorStrategy {
@@ -27,9 +28,13 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
-	n.addPixelToDraw(workSurface.Coord2D{0, 0})
+	n.addPixelToDraw(workSurface.Coord2D{100, 100})
+	n.addPixelToDraw(workSurface.Coord2D{250, 250})
+	n.addPixelToDraw(workSurface.Coord2D{450, 450})
 
-	n.surface.SetColor(0, 0, color.RGBA{uint8(255), uint8(255), uint8(255), 255})
+	n.surface.SetColor(100, 100, color.RGBA{uint8(255), uint8(0), uint8(0), 255})
+	n.surface.SetColor(250, 250, color.RGBA{uint8(0), uint8(255), uint8(0), 255})
+	n.surface.SetColor(450, 450, color.RGBA{uint8(0), uint8(0), uint8(255), 255})
 
 	totalNumberOfPixels := n.surface.Size * n.surface.Size
 	currentPixel := 1
@@ -37,10 +42,10 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 	for n.pixelBuffer.Len() > 0 {
 		nextPixel := n.getNextPixel()
 		usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
-
-		numAdded := n.addPixelsToDraw(unUsedPixels)
-
-		fmt.Printf("Current pixel (%v , %v) %v / %v . Adding %v new pixels, used : %v, unUsed : %v , queueLenght %v\n", nextPixel.X, nextPixel.Y, currentPixel, totalNumberOfPixels, numAdded, usedPixels.Len(), unUsedPixels.Len(), n.pixelBuffer.Len())
+		n.addPixelsToDraw(unUsedPixels)
+		if currentPixel%1000 == 0 {
+			fmt.Printf("Current pixel (%4v , %4v) %6v / %6v , queueLenght %4v\n", nextPixel.X, nextPixel.Y, currentPixel, totalNumberOfPixels, n.pixelBuffer.Len())
+		}
 		currentPixel++
 
 		//get average color for used neighbor pixels
@@ -115,7 +120,19 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) int {
 }
 
 func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
+	var randVal int
+//	if n.pixelBuffer.Len() < 2 {
+		randVal = rand.Intn(n.pixelBuffer.Len())
+//	}else {
+//		randVal = rand.Intn(2)
+//	}
+
+
 	elem := n.pixelBuffer.Front()
+	for i := 0; i < randVal; i++ {
+		elem = elem.Next()
+	}
+	//	elem := n.pixelBuffer.Front()
 	p, ok := elem.Value.(workSurface.Coord2D)
 	if !ok {
 		panic("Not a pixel in list!")
