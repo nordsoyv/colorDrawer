@@ -70,7 +70,7 @@ func (s *Surface) SetNotUsed(x, y int) {
 
 func (s *Surface) IsUsed(x, y int) bool {
 	if x >= s.Size || y >= s.Size {
-		panic("IsUsed :: index out of range")
+		panic(fmt.Sprintf("IsUsed :: index out of range (%v,%v)", x, y))
 	}
 	return s.pixels[x][y].Used
 }
