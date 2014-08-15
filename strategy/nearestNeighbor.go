@@ -2,11 +2,11 @@ package strategy
 
 import (
 	"container/list"
+	"fmt"
 	"github.com/nordsoyv/colorDrawer/colorCube"
 	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/workSurface"
 	"image/color"
-	"fmt"
 	"math/rand"
 )
 
@@ -28,13 +28,13 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSurface.Surface {
-	n.addPixelToDraw(workSurface.Coord2D{100, 100})
-	n.addPixelToDraw(workSurface.Coord2D{250, 250})
-	n.addPixelToDraw(workSurface.Coord2D{450, 450})
+	n.addPixelToDraw(workSurface.Coord2D{10, 10})
+	//n.addPixelToDraw(workSurface.Coord2D{250, 250})
+	//n.addPixelToDraw(workSurface.Coord2D{450, 450})
 
-	n.surface.SetColor(100, 100, color.RGBA{uint8(255), uint8(0), uint8(0), 255})
-	n.surface.SetColor(250, 250, color.RGBA{uint8(0), uint8(255), uint8(0), 255})
-	n.surface.SetColor(450, 450, color.RGBA{uint8(0), uint8(0), uint8(255), 255})
+	n.surface.SetColor(10, 10, color.RGBA{uint8(255), uint8(0), uint8(0), 255})
+	//n.surface.SetColor(250, 250, color.RGBA{uint8(0), uint8(255), uint8(0), 255})
+	//n.surface.SetColor(450, 450, color.RGBA{uint8(0), uint8(0), uint8(255), 255})
 
 	totalNumberOfPixels := n.surface.Size * n.surface.Size
 	currentPixel := 1
@@ -68,7 +68,7 @@ func (n nearestNeighborStrategy) GenerateImage(cube *colorCube.ColorCube) workSu
 				//	set as used, and color surface with it. continue loop
 				cube.SetUsed(foundX, foundY, foundZ)
 				n.surface.SetColor(nextPixel.X, nextPixel.Y, cube.GetColor(foundX, foundY, foundZ))
-			}else {
+			} else {
 				panic("Coudnt fint color!")
 			}
 		}
@@ -121,12 +121,11 @@ func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) int {
 
 func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
 	var randVal int
-//	if n.pixelBuffer.Len() < 2 {
+	if n.pixelBuffer.Len() < 2 {
 		randVal = rand.Intn(n.pixelBuffer.Len())
-//	}else {
-//		randVal = rand.Intn(2)
-//	}
-
+	} else {
+		randVal = rand.Intn(2)
+	}
 
 	elem := n.pixelBuffer.Front()
 	for i := 0; i < randVal; i++ {
@@ -140,4 +139,3 @@ func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
 	n.pixelBuffer.Remove(elem)
 	return p
 }
-
