@@ -3,7 +3,6 @@ package strategy
 import (
 	"container/list"
 	"fmt"
-	// "fmt"
 	"github.com/nordsoyv/colorDrawer/colorCube"
 	"github.com/nordsoyv/colorDrawer/config"
 	"github.com/nordsoyv/colorDrawer/workSurface"
@@ -32,12 +31,12 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(doneChan chan bool, imageUpdateChan chan ImageUpdate) {
-	n.surface.SetColor(10, 10, color.RGBA{uint8(255), uint8(255), uint8(255), 255})
+	n.surface.SetColor(10, 10, n.startColor)
 
 	pixelInputQueue := make(chan workSurface.Coord2D, 10)
 	pixelOutputQueue := make(chan workSurface.Coord2D, 1)
 
-	go pixelQueue(pixelInputQueue, pixelOutputQueue)
+	go pixelQueue(pixelInputQueue, pixelOutputQueue, n.surface.Size)
 	pixelInputQueue <- workSurface.Coord2D{11, 11}
 	pixelInputQueue <- workSurface.Coord2D{11, 10}
 	pixelInputQueue <- workSurface.Coord2D{11, 9}
@@ -47,11 +46,9 @@ func (n nearestNeighborStrategy) GenerateImage(doneChan chan bool, imageUpdateCh
 			fmt.Println("Start loop")
 
 			for !n.surface.IsFilled() {
-				// fmt.Println("Getting pixel")
 				nextPixel := <-pixelOutputQueue
-				// fmt.Println("GOT pixel")
 				usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
-				addPixelsToDraw(pixelInputQueue, unUsedPixels)
+				n.addPixelsToDraw(pixelInputQueue, unUsedPixels)
 
 				//get average color for used neighbor pixels
 				var avgColor color.RGBA
@@ -104,8 +101,12 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 
 }
 
-func pixelQueue(in chan workSurface.Coord2D, out chan workSurface.Coord2D) {
+func pixelQueue(in chan workSurface.Coord2D, out chan workSurface.Coord2D, size int) {
 	queue := list.New()
+	pixelQueueMap := make([][]bool, size)
+	for i := range pixelQueueMap {
+		pixelQueueMap[i] = make([]bool, size)
+	}
 
 	var newPixel workSurface.Coord2D
 	var nextPixel workSurface.Coord2D
@@ -113,21 +114,16 @@ func pixelQueue(in chan workSurface.Coord2D, out chan workSurface.Coord2D) {
 	for {
 		counter++
 		for len(in) > 0 {
-			// fmt.Printf("Queue is 0\n")
 			newPixel = <-in
-			addPixelToQueue(newPixel, queue)
+			addPixelToQueue(newPixel, queue, pixelQueueMap)
 		}
-		nextPixel = getNextPixel(queue)
+		nextPixel = getNextPixel(queue, pixelQueueMap)
 		for queue.Len() > 0 {
-			// fmt.Printf("Looping : %v , length : %v\n", counter, queue.Len())
-
 			select {
 			case newPixel = <-in:
-				// fmt.Println("Adding pixel select")
-				addPixelToQueue(newPixel, queue)
+				addPixelToQueue(newPixel, queue, pixelQueueMap)
 			case out <- nextPixel:
-				// fmt.Println("Removing pixel select")
-				nextPixel = getNextPixel(queue)
+				nextPixel = getNextPixel(queue, pixelQueueMap)
 			}
 		}
 
@@ -135,30 +131,22 @@ func pixelQueue(in chan workSurface.Coord2D, out chan workSurface.Coord2D) {
 
 }
 
-func addPixelToQueue(pixelToAdd workSurface.Coord2D, queue *list.List) {
-	// if n.surface.IsUsed(pixelToAdd.X, pixelToAdd.Y) {
-	// 	return false
-	// }
-	// fmt.Println("Adding pixel")
-	for e := queue.Front(); e != nil; e = e.Next() {
-		p := e.Value.(workSurface.Coord2D)
-		if p.X == pixelToAdd.X && p.Y == pixelToAdd.Y {
-			//all ready in queue
-			return
-		}
+func addPixelToQueue(pixelToAdd workSurface.Coord2D, queue *list.List, pixelQueueMap [][]bool) {
+	if pixelQueueMap[pixelToAdd.X][pixelToAdd.Y] {
+		return
 	}
+	pixelQueueMap[pixelToAdd.X][pixelToAdd.Y] = true
 	queue.PushBack(pixelToAdd)
 }
 
-func addPixelsToDraw(in chan workSurface.Coord2D, l *list.List) {
+func (n nearestNeighborStrategy) addPixelsToDraw(in chan workSurface.Coord2D, l *list.List) {
 	for e := l.Front(); e != nil; e = e.Next() {
 		p := e.Value.(workSurface.Coord2D)
 		in <- p
 	}
 }
 
-func getNextPixel(queue *list.List) workSurface.Coord2D {
-	// fmt.Println("Removing pixel inner")
+func getNextPixel(queue *list.List, pixelQueueMap [][]bool) workSurface.Coord2D {
 	var randVal int
 	if queue.Len() == 0 {
 		panic("Queue is 0")
@@ -178,5 +166,6 @@ func getNextPixel(queue *list.List) workSurface.Coord2D {
 		panic("Not a pixel in list!")
 	}
 	queue.Remove(elem)
+	pixelQueueMap[p.X][p.Y] = false
 	return p
 }

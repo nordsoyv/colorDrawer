@@ -3,7 +3,7 @@ package colorCube
 func (cube *ColorCube) FindUnusedColorInCube(startX, startY, startZ int) (foundIt bool, foundX, foundY, foundZ int) {
 	foundIt = false
 	numIterations := 1
-	for !foundIt && numIterations <= cube.SideSize {
+	for !foundIt && numIterations <= cube.SideSize+1 {
 		foundIt, foundX, foundY, foundZ = cube.findUnusedColorInCubeN(startX, startY, startZ, numIterations)
 		numIterations++
 	}

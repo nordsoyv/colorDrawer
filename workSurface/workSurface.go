@@ -32,6 +32,7 @@ func New(sideSize int) Surface {
 	for i := range topLevel {
 		topLevel[i] = make([]pixel, sideSize)
 	}
+
 	var lock sync.RWMutex
 	return Surface{topLevel, sideSize, &lock, 0}
 }

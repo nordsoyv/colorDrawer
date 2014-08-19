@@ -1,6 +1,10 @@
 package workSurface
 
-import "testing"
+import (
+	"fmt"
+
+	"testing"
+)
 
 func TestPixelIsZeroOnCreate(t *testing.T) {
 	pixel := new(pixel)
@@ -106,4 +110,9 @@ func TestFindNeighborPixelsOnEdge(t *testing.T) {
 	if unUsed.Len() != 5 {
 		t.Error("findNeighborPixels 5 15", unUsed.Len())
 	}
+}
+
+func TestBool(t *testing.T) {
+	var b bool
+	fmt.Println("Default bool is : ", b)
 }
