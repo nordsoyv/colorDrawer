@@ -66,6 +66,7 @@ func main() {
 			switch e.(type) {
 			case allegro.DisplayCloseEvent:
 				running = false
+				panic("quit")
 				break
 
 				// Handle other events here.
@@ -91,5 +92,6 @@ func main() {
 		}
 
 	}
+	panic("quit2")
 
 }

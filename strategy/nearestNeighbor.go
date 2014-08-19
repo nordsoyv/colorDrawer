@@ -2,6 +2,7 @@ package strategy
 
 import (
 	"container/list"
+	"fmt"
 	// "fmt"
 	"github.com/nordsoyv/colorDrawer/colorCube"
 	"github.com/nordsoyv/colorDrawer/config"
@@ -31,54 +32,59 @@ type nearestNeighborStrategy struct {
 }
 
 func (n nearestNeighborStrategy) GenerateImage(doneChan chan bool, imageUpdateChan chan ImageUpdate) {
-	n.addPixelToDraw(workSurface.Coord2D{10, 10})
-	//n.addPixelToDraw(workSurface.Coord2D{250, 250})
-	//n.addPixelToDraw(workSurface.Coord2D{450, 450})
-
 	n.surface.SetColor(10, 10, color.RGBA{uint8(255), uint8(255), uint8(255), 255})
-	//n.surface.SetColor(250, 250, color.RGBA{uint8(0), uint8(255), uint8(0), 255})
-	//n.surface.SetColor(450, 450, color.RGBA{uint8(0), uint8(0), uint8(255), 255})
 
-	// totalNumberOfPixels := n.surface.Size * n.surface.Size
-	currentPixel := 1
+	pixelInputQueue := make(chan workSurface.Coord2D, 10)
+	pixelOutputQueue := make(chan workSurface.Coord2D, 1)
 
-	for n.pixelBuffer.Len() > 0 {
-		nextPixel := n.getNextPixel()
-		usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
-		n.addPixelsToDraw(unUsedPixels)
-		if currentPixel%1000 == 0 {
-			// fmt.Printf("Current pixel (%4v , %4v) %6v / %6v , queueLenght %4v\n", nextPixel.X, nextPixel.Y, currentPixel, totalNumberOfPixels, n.pixelBuffer.Len())
-		}
-		currentPixel++
+	go pixelQueue(pixelInputQueue, pixelOutputQueue)
+	pixelInputQueue <- workSurface.Coord2D{11, 11}
+	pixelInputQueue <- workSurface.Coord2D{11, 10}
+	pixelInputQueue <- workSurface.Coord2D{11, 9}
 
-		//get average color for used neighbor pixels
-		var avgColor color.RGBA
-		if usedPixels.Len() > 0 {
-			avgColor = n.getAverageColor(usedPixels)
-		} else {
-			avgColor = n.surface.GetColor(nextPixel.X, nextPixel.Y)
-		}
-		//find index for this color in colorcube
-		x, y, z := n.cube.GetIndexForColor(avgColor)
-		//if color at that index is not used
-		if !n.cube.IsUsed(x, y, z) {
-			n.cube.SetUsed(x, y, z)
-			n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(x, y, z))
-		} else {
-			//  find nearest free color in cube
-			found, foundX, foundY, foundZ := n.cube.FindUnusedColorInCube(x, y, z)
-			if found {
-				//	set as used, and color surface with it. continue loop
-				n.cube.SetUsed(foundX, foundY, foundZ)
-				n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(foundX, foundY, foundZ))
-				imageUpdateChan <- ImageUpdate{nextPixel.X, nextPixel.Y, byte(foundX), byte(foundY), byte(foundZ)}
-			} else {
-				panic("Coudnt fint color!")
+	for i := 0; i < 3; i++ {
+		go func() {
+			fmt.Println("Start loop")
+
+			for !n.surface.IsFilled() {
+				// fmt.Println("Getting pixel")
+				nextPixel := <-pixelOutputQueue
+				// fmt.Println("GOT pixel")
+				usedPixels, unUsedPixels := n.surface.FindNeighborPixels(nextPixel)
+				addPixelsToDraw(pixelInputQueue, unUsedPixels)
+
+				//get average color for used neighbor pixels
+				var avgColor color.RGBA
+				if usedPixels.Len() > 0 {
+					avgColor = n.getAverageColor(usedPixels)
+				} else {
+					avgColor = n.surface.GetColor(nextPixel.X, nextPixel.Y)
+				}
+				//find index for this color in colorcube
+				x, y, z := n.cube.GetIndexForColor(avgColor)
+				//if color at that index is not used
+				if !n.cube.IsUsed(x, y, z) {
+					n.cube.SetUsed(x, y, z)
+					n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(x, y, z))
+				} else {
+					//  find nearest free color in cube
+					found, foundX, foundY, foundZ := n.cube.FindUnusedColorInCube(x, y, z)
+					if found {
+						//	set as used, and color surface with it. continue loop
+						n.cube.SetUsed(foundX, foundY, foundZ)
+						n.surface.SetColor(nextPixel.X, nextPixel.Y, n.cube.GetColor(foundX, foundY, foundZ))
+						imageUpdateChan <- ImageUpdate{nextPixel.X, nextPixel.Y, byte(foundX), byte(foundY), byte(foundZ)}
+					} else {
+						panic("Coudnt fint color!")
+					}
+				}
 			}
-		}
+		}()
+
 	}
-	n.surface.ToPng(n.fileName)
-	doneChan <- true
+
+	// n.surface.ToPng(n.fileName)
+	// doneChan <- true
 }
 
 func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
@@ -98,49 +104,79 @@ func (n nearestNeighborStrategy) getAverageColor(l *list.List) color.RGBA {
 
 }
 
-func (n nearestNeighborStrategy) addPixelToDraw(pixelToAdd workSurface.Coord2D) bool {
-	if n.surface.IsUsed(pixelToAdd.X, pixelToAdd.Y) {
-		return false
+func pixelQueue(in chan workSurface.Coord2D, out chan workSurface.Coord2D) {
+	queue := list.New()
+
+	var newPixel workSurface.Coord2D
+	var nextPixel workSurface.Coord2D
+	counter := 0
+	for {
+		counter++
+		for len(in) > 0 {
+			// fmt.Printf("Queue is 0\n")
+			newPixel = <-in
+			addPixelToQueue(newPixel, queue)
+		}
+		nextPixel = getNextPixel(queue)
+		for queue.Len() > 0 {
+			// fmt.Printf("Looping : %v , length : %v\n", counter, queue.Len())
+
+			select {
+			case newPixel = <-in:
+				// fmt.Println("Adding pixel select")
+				addPixelToQueue(newPixel, queue)
+			case out <- nextPixel:
+				// fmt.Println("Removing pixel select")
+				nextPixel = getNextPixel(queue)
+			}
+		}
+
 	}
-	for e := n.pixelBuffer.Front(); e != nil; e = e.Next() {
+
+}
+
+func addPixelToQueue(pixelToAdd workSurface.Coord2D, queue *list.List) {
+	// if n.surface.IsUsed(pixelToAdd.X, pixelToAdd.Y) {
+	// 	return false
+	// }
+	// fmt.Println("Adding pixel")
+	for e := queue.Front(); e != nil; e = e.Next() {
 		p := e.Value.(workSurface.Coord2D)
 		if p.X == pixelToAdd.X && p.Y == pixelToAdd.Y {
 			//all ready in queue
-			return false
+			return
 		}
 	}
-	n.pixelBuffer.PushBack(pixelToAdd)
-	return true
+	queue.PushBack(pixelToAdd)
 }
 
-func (n nearestNeighborStrategy) addPixelsToDraw(l *list.List) int {
-	numAdded := 0
+func addPixelsToDraw(in chan workSurface.Coord2D, l *list.List) {
 	for e := l.Front(); e != nil; e = e.Next() {
 		p := e.Value.(workSurface.Coord2D)
-		if n.addPixelToDraw(p) {
-			numAdded++
-		}
+		in <- p
 	}
-	return numAdded
 }
 
-func (n nearestNeighborStrategy) getNextPixel() workSurface.Coord2D {
+func getNextPixel(queue *list.List) workSurface.Coord2D {
+	// fmt.Println("Removing pixel inner")
 	var randVal int
-	if n.pixelBuffer.Len() < 5 {
-		randVal = rand.Intn(n.pixelBuffer.Len())
+	if queue.Len() == 0 {
+		panic("Queue is 0")
+	}
+	if queue.Len() < 5 {
+		randVal = rand.Intn(queue.Len())
 	} else {
 		randVal = rand.Intn(5)
 	}
 
-	elem := n.pixelBuffer.Back()
+	elem := queue.Back()
 	for i := 0; i < randVal; i++ {
 		elem = elem.Prev()
 	}
-	//	elem := n.pixelBuffer.Front()
 	p, ok := elem.Value.(workSurface.Coord2D)
 	if !ok {
 		panic("Not a pixel in list!")
 	}
-	n.pixelBuffer.Remove(elem)
+	queue.Remove(elem)
 	return p
 }

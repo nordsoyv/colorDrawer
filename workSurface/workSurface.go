@@ -21,9 +21,10 @@ type Coord2D struct {
 }
 
 type Surface struct {
-	pixels [][]pixel
-	Size   int
-	lock   *sync.RWMutex
+	pixels  [][]pixel
+	Size    int
+	lock    *sync.RWMutex
+	numUsed int
 }
 
 func New(sideSize int) Surface {
@@ -32,7 +33,7 @@ func New(sideSize int) Surface {
 		topLevel[i] = make([]pixel, sideSize)
 	}
 	var lock sync.RWMutex
-	return Surface{topLevel, sideSize, &lock}
+	return Surface{topLevel, sideSize, &lock, 0}
 }
 
 func (s *Surface) GetColor(x, y int) color.RGBA {
@@ -61,6 +62,7 @@ func (s *Surface) SetColor(x, y int, c color.RGBA) {
 	defer s.lock.Unlock()
 	s.pixels[x][y].Color = color.RGBA{c.R, c.G, c.B, 255}
 	s.pixels[x][y].Used = true
+	s.numUsed++
 }
 
 func (s *Surface) SetUsed(x, y int) {
@@ -70,6 +72,7 @@ func (s *Surface) SetUsed(x, y int) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.pixels[x][y].Used = true
+	s.numUsed++
 }
 
 func (s *Surface) SetNotUsed(x, y int) {
@@ -79,6 +82,7 @@ func (s *Surface) SetNotUsed(x, y int) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.pixels[x][y].Used = false
+	s.numUsed--
 }
 
 func (s *Surface) IsUsed(x, y int) bool {
@@ -99,6 +103,10 @@ func (s *Surface) ToPng(fileName string) {
 	defer writer.Flush()
 	err = png.Encode(writer, s.toImage())
 	check(err)
+}
+
+func (s *Surface) IsFilled() bool {
+	return s.numUsed == (s.Size * s.Size)
 }
 
 func (s *Surface) toImage() *image.RGBA {
